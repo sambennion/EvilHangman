@@ -123,5 +123,8 @@ public class EvilHangmanGame implements IEvilHangmanGame{
     public String getLettersToAdd(){
         return lastBestMapKey;
     }
+    public Set<String> getWordSet(){
+        return words;
+    }
 }
     

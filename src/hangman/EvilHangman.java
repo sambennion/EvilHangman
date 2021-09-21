@@ -25,18 +25,27 @@ public class EvilHangman {
             curWord.append('-');
         }
         gameLoop(game, numGuesses, curWord);
+        return;
     }
     private static void gameLoop(EvilHangmanGame game, int numGuesses, StringBuilder curWord) {
-        System.out.println(String.format("You have %d guesses left", numGuesses));
-        String s = game.getGuessedLetters().toString();
-        System.out.println(String.format("Used letters %s", s));
-        System.out.println(String.format("Word: %s", curWord.toString()));
-        boolean validWord;
+
+        boolean validWord = true;
+        Scanner scan = new Scanner(System.in);
+        Scanner strScan = new Scanner(""); //create a string scanner to prevent input hangups
         do {
+            if(validWord || strScan.hasNext()){
+                System.out.println(String.format("You have %d guesses left", numGuesses));
+                String s = game.getGuessedLetters().toString();
+                System.out.println(String.format("Used letters %s", s));
+                System.out.println(String.format("Word: %s", curWord.toString()));
+            }
             validWord = true;
+
             System.out.println("Enter guess: ");
-            Scanner scan = new Scanner(System.in);
-            String input = scan.next();
+            if(!strScan.hasNext()){
+                strScan = new Scanner(scan.nextLine());
+            }
+            String input = strScan.next();
             input = input.toLowerCase();
             if (input.length() > 1 || (input.charAt(0) < 'a' || input.charAt(0) > 'z')) {
                 System.out.println("Invalid input!");
@@ -63,7 +72,11 @@ public class EvilHangman {
                     System.out.println("Guess already made!");
                 }
             }
-        } while (!validWord);
+        } while ((!validWord || strScan.hasNext()) && numGuesses > 0);
+        if(numGuesses == 0){
+            System.out.println(String.format("Sorry, you lost. The word was: %s", game.getWordSet().toArray()[0]));
+            return;
+        }
         gameLoop(game, numGuesses, curWord);
         //System.out.println(String.format("Your guess is %s", input));
 
