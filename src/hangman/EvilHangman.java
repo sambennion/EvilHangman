@@ -3,6 +3,7 @@ package hangman;
 import java.io.File;
 import java.io.IOException;
 import java.util.Locale;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 public class EvilHangman {
@@ -42,39 +43,49 @@ public class EvilHangman {
             validWord = true;
 
             System.out.println("Enter guess: ");
-            if(!strScan.hasNext()){
-                strScan = new Scanner(scan.nextLine());
-            }
-            String input = strScan.next();
-            input = input.toLowerCase();
-            if (input.length() > 1 || (input.charAt(0) < 'a' || input.charAt(0) > 'z')) {
-                System.out.println("Invalid input!");
-                validWord = false;
-            } else {
-                try {
-                    game.makeGuess(input.charAt(0));
-                    int numAddedLetters = 0;
-                    for (int i = 0; i < game.getLettersToAdd().length(); i++) {
-                        if (game.getLettersToAdd().charAt(i) != '-') {
-                            curWord.setCharAt(i, game.getLettersToAdd().charAt(i));
-                            numAddedLetters++;
+                try{
+                    if(!strScan.hasNext()) {
+                        strScan = new Scanner(scan.nextLine());
+                    }
+                    String input = strScan.next();
+
+                    input = input.toLowerCase();
+                    if (input.length() > 1 || (input.charAt(0) < 'a' || input.charAt(0) > 'z')) {
+                        System.out.println("Invalid input!");
+                        validWord = false;
+                    } else {
+                        try {
+                            game.makeGuess(input.charAt(0));
+                            int numAddedLetters = 0;
+                            for (int i = 0; i < game.getLettersToAdd().length(); i++) {
+                                if (game.getLettersToAdd().charAt(i) != '-') {
+                                    curWord.setCharAt(i, game.getLettersToAdd().charAt(i));
+                                    numAddedLetters++;
+                                }
+                            }
+                            if (numAddedLetters == 0) {
+                                System.out.println(String.format("Sorry, there are no %s\n", input));
+                                numGuesses--;
+                            } else {
+                                System.out.println(String.format("Yes, there is %d %s\n", numAddedLetters, input));
+                            }
+
+                        } catch (GuessAlreadyMadeException e) {
+                            //e.printStackTrace();
+                            System.out.println("Guess already made!");
                         }
                     }
-                    if (numAddedLetters == 0) {
-                        System.out.println(String.format("Sorry, there are no %s\n", input));
-                        numGuesses--;
-                    } else {
-                        System.out.println(String.format("Yes, there is %d %s\n", numAddedLetters, input));
-                    }
-
-                } catch (GuessAlreadyMadeException e) {
-                    //e.printStackTrace();
-                    System.out.println("Guess already made!");
+                } catch (NoSuchElementException e) {
+                    System.out.println("Invalid input!");
+                    validWord = false;
                 }
-            }
         } while ((!validWord || strScan.hasNext()) && numGuesses > 0);
         if(numGuesses == 0){
             System.out.println(String.format("Sorry, you lost. The word was: %s", game.getWordSet().toArray()[0]));
+            return;
+        }
+        if(!curWord.toString().contains("-")){
+            System.out.println(String.format("You win! You guessed the word: %s", curWord.toString()));
             return;
         }
         gameLoop(game, numGuesses, curWord);
